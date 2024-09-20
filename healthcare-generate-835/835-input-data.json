@@ -1,0 +1,111 @@
+{
+  "Name": "John Doe, M.D.",
+  "Payee": "999999999",
+  "CheckNo": "0060875566",
+  "Date": "10/27/2007",
+  "Amount": 252.49,
+  "claims": [
+    {
+      "AccountNumber": "12345",
+      "ClaimNumber": "072967262400",
+      "ServiceDate": "10/11/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Miller, Mark M.",
+      "MemberID": "10285566100",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "23456",
+      "ClaimNumber": "072967286100",
+      "ServiceDate": "10/05/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Cane, Carol C.",
+      "MemberID": "10285408200",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "34567",
+      "ClaimNumber": "072967286200",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Cane, Carol C.",
+      "MemberID": "10285408200",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "45678",
+      "ClaimNumber": "072967282400",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Cane, David D.",
+      "MemberID": "10285408100",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "56789",
+      "ClaimNumber": "072967263500",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Johnson, Ann",
+      "MemberID": "10285602000",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "67891",
+      "ClaimNumber": "072967263500",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCodes": ["99393", "90700", "90707", "90713", "90716"],
+      "MemberName": "Ham, Suzie",
+      "MemberID": "10285237400",
+      "AmountBilled": 119.00,
+      "AmountAllowed": 0.00,
+      "NetAmountProcessed": 0.00
+    },
+    {
+      "AccountNumber": "78910",
+      "ClaimNumber": "072966935200",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCodes": ["92015", "99213"],
+      "MemberName": "Ham, Suzie",
+      "MemberID": "10285237400",
+      "AmountBilled": 85.00,
+      "AmountAllowed": 0.00,
+      "NetAmountProcessed": 0.00
+    },
+    {
+      "AccountNumber": "89101",
+      "ClaimNumber": "072967262600",
+      "ServiceDate": "10/12/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Kelly, Cheryl A.",
+      "MemberID": "10285589500",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    },
+    {
+      "AccountNumber": "91011",
+      "ClaimNumber": "072967247100",
+      "ServiceDate": "10/09/2007",
+      "ProcedureCode": "99213",
+      "MemberName": "Miller, Samantha B.",
+      "MemberID": "10287848800",
+      "AmountBilled": 65.00,
+      "AmountAllowed": 36.07,
+      "NetAmountProcessed": 36.07
+    }
+  ],
+  "TotalAmountBilled": 659.00,
+  "TotalAmountAllowed": 252.49,
+  "TotalNetAmountProcessed": 252.49
+}

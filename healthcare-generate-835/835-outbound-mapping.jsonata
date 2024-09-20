@@ -1,0 +1,108 @@
+{
+  "interchanges" : [ {
+    "ISA_01_AuthorizationQualifier" : "00",
+    "ISA_02_AuthorizationInformation" : "          ",
+    "ISA_03_SecurityQualifier" : "00",
+    "ISA_04_SecurityInformation" : "          ",
+    "ISA_05_SenderQualifier" : "ZZ",
+    "ISA_06_SenderId" : "SUBMITTERS ID  ",
+    "ISA_07_ReceiverQualifier" : "ZZ",
+    "ISA_08_ReceiverId" : "RECEIVERS ID   ",
+    "ISA_09_Date" : "200101",
+    "ISA_10_Time" : "1253",
+    "ISA_11_RepetitionSeparator" : "^",
+    "ISA_12_Version" : "00501",
+    "ISA_13_InterchangeControlNumber" : "000000905",
+    "ISA_14_AcknowledgmentRequested" : "0",
+    "ISA_15_TestIndicator" : "T",
+    "functional_groups" : [ {
+      "GS_01_FunctionalIdentifierCode" : "HP",
+      "GS_02_ApplicationSenderCode" : "SENDER CODE",
+      "GS_03_ApplicationReceiverCode" : "RECEIVER CODE",
+      "GS_04_Date" : "20200101",
+      "GS_05_Time" : "0802",
+      "GS_06_GroupControlNumber" : "1",
+      "GS_07_ResponsibleAgencyCode" : "X",
+      "GS_08_Version" : "005010X221A1",
+      "transactions" : [ {
+        "ST_01_TransactionSetIdentifierCode" : "835",
+        "ST_02_TransactionSetControlNumber" : "1234",
+        "segments" : [ {
+          "BPR_01" : "C",
+          "BPR_02" : $string(TotalNetAmountProcessed),
+          "BPR_03" : "C",
+          "BPR_04" : "CHK",
+          "BPR_05" : "CTX",
+          "BPR_06" : "01",
+          "BPR_07" : "999999901",
+          "BPR_08" : "DA",
+          "BPR_09" : "999999902",
+          "BPR_10" : "9999999031",
+          "BPR_12" : "01",
+          "BPR_13" : "999988880",
+          "BPR_14" : "DA",
+          "BPR_15" : "98765",
+          "BPR_16" : $now('[Y0001][M01][D01]') /* date of check */
+        }, {
+          "TRN_01" : "1",
+          "TRN_02" : $.CheckNo, /* check number */
+          "TRN_03" : "1512345678"
+        }, {
+          "DTM_01" : "405",
+          "DTM_02" : $substring($.Date, 6) & $substring($.Date, 0,2) & $substring($.Date, 3,2) /* transaction date/time */
+        }, {
+          "N1-1000A_loop" : [ {
+            "N1_01" : "PR",
+            "N1_02" : "CareSource Ohio"
+          }, {
+            "N3_01" : "One South Main St"
+          }, {
+            "N4_01" : "Dayton",
+            "N4_02" : "OH",
+            "N4_03" : "45402"
+          }, {
+            "REF_01" : "2U",
+            "REF_02" : "31114"
+          } ]
+        }, {
+          "N1-1000B_loop" : [ {
+            "N1_01" : "PE",
+            "N1_02" : $.Name, /* payee name */
+            "N1_03" : "XX", /* type  */
+            "N1_04" : $.Payee /* ID */
+          }, {
+            "N3_01" : "540 E Main St"
+          }, {
+            "N4_01" : "Canfield",
+            "N4_02" : "OH",
+            "N4_03" : "44406"
+          } ]
+        }, 
+
+        $.claims#$index.{
+          "LX-2000_loop" : [ {
+            "LX_01" : $string(110000+$index*2)
+          }, {
+            "CLP-2100_loop" : [ {
+              "CLP_01" : AccountNumber, /* patient control number */
+              "CLP_02" : "1",
+              "CLP_03" : $string(AmountBilled), /* charge amount requested */
+              "CLP_04" : $string(AmountAllowed), /* claim aount paid */
+              "CLP_06" : "MA",
+              "CLP_07" : "1999999444444"
+            },{
+              "NM1_01" : "QC",
+              "NM1_02" : "1",
+              "NM1_03" : $substringBefore(MemberName,","), /* lastname */
+              "NM1_04" : $trim($substringAfter(MemberName,",")),/* firstname */
+              "NM1_05" : "", /* middlename */
+              "NM1_08" : "HN",
+              "NM1_09" : MemberID /* patient id */
+            } ]
+          } ]
+        }
+        ] /* end of segments */
+      } ] /* end of transactions */
+    } ]
+  } ]
+}
