@@ -1,3 +1,9 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
 # Automating the Generation of X12 835 EDI Documents from EOP PDFs
 
 **Disclaimer**: This tutorial is for educational purposes only. Before using any real-world files, please consult your internal security team to ensure that no sensitive information, such as Personally Identifiable Information (PII), is mishandled.
@@ -24,14 +30,20 @@ The goal is to create an automated process that takes the EOP PDF document, extr
 
    ![PDF to PNG Shortcut](pdf-to-png-shortcut.png)
 
+   Here is the first page of the example EOP.
+
    ![Here is the first page of the EOP](csexplanationofpayment-1.png)
 
 3. **Extract Information into JSON Using AWS Bedrock**
 
    a. Go to the AWS Console and select Amazon Bedrock.
+
    b. On the left sidebar, choose `Playgrounds -> Chat`.
+
    c. Select the "Claude 3.5 Sonnect" model.
+
    d. Upload the PNG files (maximum of 5 files, 4.5 MB each).
+
    e. Enter the following text instruction:
 
       ```
@@ -41,11 +53,12 @@ The goal is to create an automated process that takes the EOP PDF document, extr
       ```
 
    f. The Bedrock model will output a JSON array. You can refine the prompt to ensure the JSON schema matches your requirements.
+
    g. Save the JSON file from Bedrock into an S3 bucket.
 
    For this exercise, please use the following JSON content:
 
-```
+```json
 {
   "Name": "John Doe, M.D.",
   "Payee": "999999999",
