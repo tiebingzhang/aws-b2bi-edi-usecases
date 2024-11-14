@@ -17,6 +17,8 @@ Each subdirectory includes a README file with an overview of the use case, relev
 
 Contributions to this repository are welcome! If you have an interesting use case or example to share, feel free to submit a pull request. Please ensure that your contribution follows the existing structure and includes clear documentation.
 
+Locally you can use the `mkdocs` python tool to render the docs.  Use `mkdocs serve` to serve the rendered document.
+
 ## License
 
 This repository is licensed under the [MIT License](LICENSE).

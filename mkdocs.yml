@@ -1,6 +1,11 @@
 site_name: B2Bi Usecases 
 theme:
   name: material
+  language: en
+  features:
+    - tabs
+    - instant
+    - navigation.tabs
 markdown_extensions:
   - sane_lists
   - pymdownx.highlight:

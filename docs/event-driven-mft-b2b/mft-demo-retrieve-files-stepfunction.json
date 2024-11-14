@@ -1,0 +1,123 @@
+{
+  "Comment": "Process SFTP Connector Directory Listing Completed event and transfer files",
+  "StartAt": "ExtractEventDetails",
+  "States": {
+    "ExtractEventDetails": {
+      "Type": "Pass",
+      "Parameters": {
+        "listing_id.$": "$.detail.listing-id",
+        "output_file_location.$": "$.detail.output-file-location"
+      },
+      "Next": "GetPartnerIdFromDynamoDB"
+    },
+    "GetPartnerIdFromDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "transfer-family-mft-demo",
+        "Key": {
+          "key1": {"S": "listing"},
+          "key2": {"S.$": "$.listing_id"}
+        }
+      },
+      "ResultPath": "$.partnerIdLookup",
+      "Next": "ExtractPartnerId"
+    },
+    "ExtractPartnerId": {
+      "Type": "Pass",
+      "Parameters": {
+        "partner_id.$": "$.partnerIdLookup.Item.value.M.partner_id.S",
+        "listing_id.$": "$.listing_id",
+        "output_file_location.$": "$.output_file_location"
+      },
+      "Next": "GetConfigFromDynamoDB"
+    },
+    "GetConfigFromDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Parameters": {
+        "TableName": "transfer-family-mft-demo",
+        "KeyConditionExpression": "#key1 = :key1Value AND #key2 = :key2Value",
+        "ExpressionAttributeNames": {
+          "#key1": "key1",
+          "#key2": "key2"
+        },
+        "ExpressionAttributeValues": {
+          ":key1Value": {
+            "S": "config"
+          },
+          ":key2Value": {
+            "S.$": "$.partner_id"
+          }
+        }
+      },
+      "ResultPath": "$.dynamoDBData",
+      "Next": "ReadS3OutputFile"
+    },
+    "ReadS3OutputFile": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:s3:getObject",
+      "Parameters": {
+        "Bucket.$": "$.output_file_location.bucket",
+        "Key.$": "$.output_file_location.key"
+      },
+      "ResultSelector": {
+        "FileContent.$": "States.StringToJson($.Body)"
+      },
+      "ResultPath": "$.s3OutputFile",
+      "Next": "PrepareFileTransfer"
+    },
+    "PrepareFileTransfer": {
+      "Type": "Pass",
+      "Parameters": {
+        "ConnectorId.$": "$.dynamoDBData.Items[0].value.M.connector-id.S",
+        "LocalDirectoryPath0.$": "$.dynamoDBData.Items[0].value.M.file-output-directory-path.S",
+        "LocalDirectoryPath.$": "States.Format('{}{}', '/',$.dynamoDBData.Items[0].value.M['file-output-directory-path'].S)",
+        "RetrieveFilePaths.$": "$.s3OutputFile.FileContent.files[*].filePath",
+        "partner_id.$": "$.partner_id"
+      },
+      "Next": "TransferFiles"
+    },
+    "TransferFiles": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:transfer:startFileTransfer",
+      "Parameters": {
+        "ConnectorId.$": "$.ConnectorId",
+        "LocalDirectoryPath.$": "$.LocalDirectoryPath",
+        "RetrieveFilePaths.$": "$.RetrieveFilePaths"
+      },
+      "ResultPath": "$.transferResult",
+      "Next": "ProcessFilePaths"
+    },
+    "ProcessFilePaths": {
+      "Type": "Map",
+      "ItemsPath": "$.RetrieveFilePaths",
+      "Parameters": {
+        "filePath.$": "$$.Map.Item.Value",
+        "LocalDirectoryPath0.$": "$.LocalDirectoryPath0",
+        "partner_id.$": "$.partner_id"
+      },
+      "Iterator": {
+        "StartAt": "WriteToDynamoDB",
+        "States": {
+          "WriteToDynamoDB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:putItem",
+            "Parameters": {
+              "TableName": "transfer-family-mft-demo",
+              "Item": {
+                "key1": {"S": "filepath"},
+                "key2": {
+                  "S.$": "States.Format('{}{}', $.LocalDirectoryPath0, $.filePath)"
+                },
+                "value": {"S.$": "$.partner_id"}
+              }
+            },
+            "End": true
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}

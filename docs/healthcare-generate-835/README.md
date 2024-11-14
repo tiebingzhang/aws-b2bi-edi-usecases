@@ -14,7 +14,7 @@ Note: The files used in this example are all sample files with made-up data.
 
 The customer is a medical service provider (e.g., doctors, hospitals, urgent care facilities) who provides medical services and bills insurance companies for those services. After processing the billing, the insurance company sends an Explanation of Payment (EOP) PDF document detailing the processing of the billing, including the billed amount, adjustments made, and the actual payment amount for each claim. Currently, the customer has to manually read the EOP PDF, extract the relevant information, and enter it into an internal billing reconciliation system.
 
-The goal is to create an automated process that takes the EOP PDF document, extracts the information into a JSON file, and then uses the AWS B2B Integration (B2BI) service to transform the JSON file into an X12 HIPAA-compliant 835 document, which can be directly ingested by the internal billing system.
+The goal is to create an automated process that takes the EOP PDF document, extracts the information into a JSON file, and then uses the AWS B2B Data Interchange (B2BI) service to transform the JSON file into an X12 HIPAA-compliant 835 document, which can be directly ingested by the internal billing system.
 
 ## Steps
 
@@ -365,4 +365,4 @@ IEA*1*000000905~
 
    You can now use this transformer in a "Trading Capability" where you can set up an incoming S3 bucket for the JSON files and an output S3 bucket (or prefix) for the generated EDI files. Whenever you drop a JSON file in the incoming S3 bucket, the B2BI service will perform the transformation and deposit the corresponding EDI file in your output S3 bucket.
 
-By following these steps, you will have created an automated process to generate X12 835 EDI documents from EOP PDFs using AWS B2BI services.
+By following these steps, you will have created an automated process to generate X12 835 EDI documents from EOP PDFs using the AWS B2BI service.

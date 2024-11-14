@@ -1,0 +1,114 @@
+{
+  "Comment": "Retrieve data from DynamoDB and log partner values",
+  "StartAt": "GetDataFromDynamoDB",
+  "States": {
+    "GetDataFromDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Parameters": {
+        "TableName": "transfer-family-mft-demo",
+        "KeyConditionExpression": "#key1 = :key1Value AND #key2 = :key2Value",
+        "ExpressionAttributeNames": {
+          "#key1": "key1",
+          "#key2": "key2"
+        },
+        "ExpressionAttributeValues": {
+          ":key1Value": {
+            "S": "partners"
+          },
+          ":key2Value": {
+            "S": "list"
+          }
+        }
+      },
+      "ResultPath": "$.dynamoDBData",
+      "Next": "ProcessPartners"
+    },
+    "ProcessPartners": {
+      "Type": "Map",
+      "ItemsPath": "$.dynamoDBData.Items[0].value.L",
+      "Iterator": {
+        "StartAt": "GetConfigFromDynamoDB",
+        "States": {
+          "GetConfigFromDynamoDB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+            "Parameters": {
+              "TableName": "transfer-family-mft-demo",
+              "KeyConditionExpression": "#key1 = :key1Value AND #key2 = :key2Value",
+              "ExpressionAttributeNames": {
+                "#key1": "key1",
+                "#key2": "key2"
+              },
+              "ExpressionAttributeValues": {
+                ":key1Value": {
+                  "S": "config"
+                },
+                ":key2Value": {
+                  "S.$": "$.S"
+                }
+              }
+            },
+            "ResultPath": "$.dynamoDBData",
+            "Next": "CheckCountValue"
+          },
+          "CheckCountValue": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.dynamoDBData.Count",
+                "NumericEquals": 0,
+                "Next": "NextIteration"
+              }
+            ],
+            "Default": "CallListDirectoryLambda"
+          },
+          "NextIteration": {
+            "Type": "Succeed"
+          },
+          "CallListDirectoryLambda": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "mft-demo-2024-list-directory",
+              "Payload": {
+                "JobParameters": {
+                  "body": {
+                    "partnerId.$": "$.S",
+                    "connectorId.$": "$.dynamoDBData.Items[0].value.M.connector-id.S",
+                    "outputBucket.$": "$.dynamoDBData.Items[0].value.M.listing-output-directory-path.S"
+                  }
+                }
+              }
+            },
+            "ResultPath": "$.lambdaResult",
+            "Next": "WriteToDynamoDB"
+          },
+          "WriteToDynamoDB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:putItem",
+            "Parameters": {
+              "TableName": "transfer-family-mft-demo",
+              "Item": {
+                "key1": {
+                  "S": "listing"
+                },
+                "key2": {
+                  "S.$": "$.lambdaResult.Payload.body.listingId"
+                },
+                "value": {
+                  "M": {
+                    "partner_id.$": "$.S"
+                  }
+                }
+              }
+            },
+            "ResultPath": "$.writeToDynamoDBResult",
+            "End": true
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}

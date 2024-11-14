@@ -1,0 +1,94 @@
+{
+  "Comment": "A state machine that processes clean files from AWS Transfer Family",
+  "StartAt": "ExtractS3Details",
+  "States": {
+    "ExtractS3Details": {
+      "Type": "Pass",
+      "Parameters": {
+        "bucketName.$": "$.detail.s3ObjectDetails.bucketName",
+        "objectKey.$": "$.detail.s3ObjectDetails.objectKey",
+        "s3Path.$": "States.Format('{}/{}', $.detail.s3ObjectDetails.bucketName, $.detail.s3ObjectDetails.objectKey)"
+      },
+      "Next": "GetPartnerIdFromDynamoDB"
+    },
+    "GetPartnerIdFromDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:getItem",
+      "Parameters": {
+        "TableName": "transfer-family-mft-demo",
+        "Key": {
+          "key1": {"S": "filepath"},
+          "key2": {"S.$": "$.s3Path"}
+        }
+      },
+      "ResultPath": "$.partnerIdData",
+      "Next": "GetConfigFromDynamoDB",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "GetConfigFromDynamoDB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Parameters": {
+        "TableName": "transfer-family-mft-demo",
+        "KeyConditionExpression": "#key1 = :key1Value AND #key2 = :key2Value",
+        "ExpressionAttributeNames": {
+          "#key1": "key1",
+          "#key2": "key2"
+        },
+        "ExpressionAttributeValues": {
+          ":key1Value": {
+            "S": "config"
+          },
+          ":key2Value": {
+            "S.$": "$.partnerIdData.Item.value.S"
+          }
+        }
+      },
+      "ResultPath": "$.dynamoDBData",
+      "Next": "ExtractDestinationPath",
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "ExtractDestinationPath": {
+      "Type": "Pass",
+      "Parameters": {
+        "destinationBucket.$": "$.dynamoDBData.Items[0].value.M.b2bi-input-bucket.S",
+        "destinationPrefix.$": "$.dynamoDBData.Items[0].value.M.b2bi-input-prefix.S"
+      },
+      "ResultPath": "$.destination",
+      "Next": "CopyS3Object"
+    },
+    "CopyS3Object": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:s3:copyObject",
+      "Parameters": {
+        "Bucket.$": "$.destination.destinationBucket",
+        "CopySource.$": "States.Format('{}/{}', $.bucketName, $.objectKey)",
+        "Key.$": "States.Format('{}/{}', $.destination.destinationPrefix, States.ArrayGetItem(States.StringSplit($.objectKey,'/'),States.MathAdd(States.ArrayLength(States.StringSplit($.objectKey, '/')), -1)))"
+      },
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "HandleError"
+        }
+      ]
+    },
+    "HandleError": {
+      "Type": "Pass",
+      "Parameters": {
+        "error.$": "$.Cause"
+      },
+      "End": true
+    }
+  }
+}
