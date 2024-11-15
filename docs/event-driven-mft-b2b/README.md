@@ -2,29 +2,28 @@
 hide:
   - navigation
 ---
-# Build an event-driven MFT workflow
+# Build an event-driven Managed File Transfer(MFT) workflow
 
 ## Scenario
-- You run an EDI clearhousing, and you have a customer that is a medical service provider. 
-- You help your customer submit their medical claims and benefit enrollment forms to the insurance companies. 
+- You run an EDI clearing house, and you have a customer that is a medical service provider. 
+- Your customer needs your help to submit their medical claims and benefit enrollment forms to the insurance companies. 
 - Your customer deposit those files on their SFTP server every day at 5pm, and archive them at 5am next day.
-- Your customer expects you to retrieve the files once they are deposited, and before they are archived.
-- Your customer would like to see a X12 functional acknowlegement document 999 for each file processed via a web portal that you provide.
+- Your customer expects you to retrieve the files daily before they are archived.
 - The medical claims are in the format of X12 document 837, and benefit enrollment in the format of X12 document 834. 
 
 ## Your Requirements to the solution
-- Use native AWS cloud native services (benefits: high availability, scalable, auditable, secure, private)
+- Use AWS cloud native services (benefits: high availability, scalable, auditable, secure, private)
 - Security, HIPAA compliant
 - Privacy
 - Use low code development
+- Event driven and serverless
 - auditable with logs
 - easy to operate
-- operation dashboard 
-- Event driven and serverless
+- can build an operation dashboard 
 
-## Highlevel solution
+## High-level solution
 1. Use Amazon EventBrige Scheduler to kick off the operation every day at a fixed time.
-2. Three high-level steps:
+2. Four high-level steps:
     - List the files available on the SFTP server
     - Retrive the files and deposit them to a S3 bucket
     - Malware-scan the files to make sure they are clean
@@ -47,8 +46,8 @@ aws scheduler create-schedule \
 `--schedule-expression "cron(0 18 ? * * *)"`: This cron expression means "at 6:00 PM (18:00) every day". The cron format is (minute hour day-of-month month day-of-week year).
 
 ### Create a step function to list file on the customer's SFTP server
-1. Create a DynamoDB table, with primary key as `key1` and sorting key as `key2`. 
-2. Create an entry to store all the customers we need to process. In this case, we have two partners. 
+1. Create a DynamoDB table to store contexts between different work flows.
+2. Create an entry to store all the customers, aka partners, that we need to process. In this case, we have two partners. 
 ```
     (partners, list)= [ { "S" : "partner1" }, { "S" : "partner2" } ]
 ```
@@ -57,9 +56,9 @@ aws scheduler create-schedule \
 ![Step function that lists directory](stepfunction-list-directory.png)
 
 #### Steps
-1. GetDataFromDynamoDB: retrieve the above partner list from the DynamoDB table
-2. ProcessPartners: process each partner one by one
-3. GetConfigFromDynamoDB: retrieve the specific configuration of said partner.  For `partner1`, the config looks like the following
+1. GetDataFromDynamoDB: retrieve the partner list from the DynamoDB table
+2. ProcessPartners: loop through partners one by one
+3. GetConfigFromDynamoDB: for each partner id, retrieve the specific configuration of the partner.  For `partner1`, the config looks like the following
     ```json
     {
       "connector-id": {
@@ -132,3 +131,4 @@ processing.
 The rule listens on events with the status of `no threats found` and trigger the above copy-files workflow.
 Optinally, another rule can be created to listen on the `threat found` events and notify customers.
 
+### Create the B2Bi resources to process the X12 files
