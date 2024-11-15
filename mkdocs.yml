@@ -2,6 +2,8 @@ site_name: B2Bi Usecases
 theme:
   name: material
   language: en
+  favicon: assets/b2bi.png
+  logo: assets/logo.png
   features:
     - tabs
     - instant
@@ -15,3 +17,6 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+nav:
+  - Event-Driven MFT: event-driven-mft-b2b/README.md
+  - B2Bi-Generate-835: healthcare-generate-835/README.md

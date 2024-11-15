@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "Name": { "type": "string" },
+    "Payee": { "type": "string" },
+    "CheckNo": { "type": "string" },
+    "Date": { "type": "string" },
+    "Amount": { "type": "number" },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "AccountNumber": { "type": "string" },
+          "ClaimNumber": { "type": "string" },
+          "ServiceDate": { "type": "string" },
+          "ProcedureCode": { "type": "string" },
+          "ProcedureCodes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "MemberName": { "type": "string" },
+          "MemberID": { "type": "string" },
+          "AmountBilled": { "type": "number" },
+          "AmountAllowed": { "type": "number" },
+          "NetAmountProcessed": { "type": "number" }
+        },
+        "required": ["AccountNumber", "ClaimNumber", "ServiceDate", "MemberName", "MemberID", "AmountBilled", "AmountAllowed", "NetAmountProcessed"],
+        "additionalProperties": false
+      }
+    },
+    "TotalAmountBilled": { "type": "number" },
+    "TotalAmountAllowed": { "type": "number" },
+    "TotalNetAmountProcessed": { "type": "number" }
+  },
+  "required": ["Name", "Payee", "CheckNo", "Date", "Amount", "claims", "TotalAmountBilled", "TotalAmountAllowed", "TotalNetAmountProcessed"],
+  "additionalProperties": false
+}
