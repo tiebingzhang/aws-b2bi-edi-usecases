@@ -5,11 +5,11 @@ hide:
 # Build an event-driven Managed File Transfer(MFT) workflow
 
 ## Scenario
-- You run an EDI clearing house, and you have a customer that is a medical service provider. 
-- Your customer needs your help to submit their medical claims and benefit enrollment forms to the insurance companies. 
-- Your customer deposit those files on their SFTP server every day at 5pm, and archive them at 5am next day.
-- Your customer expects you to retrieve the files daily before they are archived.
+- You are a medical insurance company.
+- Your customers upload their medical claims and benefit enrollment forms to your SFTP server every day
 - The medical claims are in the format of X12 document 837, and benefit enrollment in the format of X12 document 834. 
+- You need to to retrieve the files at the end of day and process them
+- The files need to be scanned for malware protection before they can be proessed
 
 ## Your Requirements to the solution
 - Use AWS cloud native services (benefits: high availability, scalable, auditable, secure, private)
